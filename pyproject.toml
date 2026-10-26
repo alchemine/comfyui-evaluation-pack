@@ -1,0 +1,34 @@
+[project]
+name = "comfyui-evaluation-pack"
+description = """Image evaluation pack.
+- Anatomy Evaluator: scores faces, eyes, hands, fingers and feet for count and sharpness, with a report of every check"""
+
+version = "1.0.0"
+license = { file = "LICENSE" }
+requires-python = ">=3.12"
+
+[project.urls]
+Repository = "https://github.com/alchemine/comfyui-evaluation-pack"
+"Bug Tracker" = "https://github.com/alchemine/comfyui-evaluation-pack/issues"
+
+[tool.comfy]
+PublisherId = "alchemine"
+DisplayName = "ComfyUI-Evaluation-Pack"
+Icon = ""
+
+[tool.ruff]
+lint.select = [
+  "N805", # invalid-first-argument-name-for-method
+  "S307", # suspicious-eval-usage
+  "S102", # exec
+  "E",
+  "T",    # print-usage
+  "W",
+  # The "F" series in Ruff stands for "Pyflakes" rules, which catch various Python syntax errors and undefined names.
+  # See all rules here: https://docs.astral.sh/ruff/rules/#pyflakes-f
+  "F",
+]
+
+lint.ignore = ["E501", "E722", "E731", "E712", "E402", "E741"]
+
+exclude = ["*.ipynb"]
