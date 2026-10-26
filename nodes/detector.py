@@ -11,6 +11,10 @@ import comfy.model_management
 
 # One model per process: loading takes seconds and the node runs once per image.
 _processor = None
+# The image backbone is most of a detection, and the node asks several prompts
+# of one image before moving on: the state of the last image is kept for them.
+_last_image = None
+_last_state = None
 
 
 def _rmbg_models_dir():
@@ -65,13 +69,15 @@ def detect(image, prompt, threshold):
     image: (H, W, 3) in [0, 1]
     returns: (K, H, W) bool, on the CPU
     """
+    global _last_image, _last_state
     processor = _load()
-    pil = Image.fromarray(
-        (image.clamp(0, 1) * 255).round().to(torch.uint8).cpu().numpy()
-    )
-    state = processor.set_image(pil)
+    if image is not _last_image:
+        pil = Image.fromarray(
+            (image.clamp(0, 1) * 255).round().to(torch.uint8).cpu().numpy()
+        )
+        _last_image, _last_state = image, processor.set_image(pil)
     processor.set_confidence_threshold(threshold)
-    state = processor.set_text_prompt(prompt, state)
+    state = processor.set_text_prompt(prompt, dict(_last_state))
     masks = state["masks"]
     if masks.numel() == 0:
         return torch.zeros((0,) + tuple(image.shape[:2]), dtype=torch.bool)
